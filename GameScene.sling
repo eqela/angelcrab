@@ -1,0 +1,144 @@
+
+/*
+ * This file is part of Angel Crab
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is SpriteSceneWithEntities imports cape imports cave imports motion:
+
+var audioManager as AudioManager
+var clip as AudioClip
+var crab as CrabEntity
+var fireButton as Sprite
+var stream as AudioStream
+var MAX_SPAWN_NUM_LEVEL1 final = 5
+var MAX_SPAWN_NUM_LEVEL2 final = 10
+var MAX_SPAWN_NUM_LEVEL3 final = 15
+var lockSpawn = false
+var score = 0
+var collidableEntities as vector<SpriteEntity>
+
+func initialize override
+{
+	base.initialize()
+	collidableEntities = new vector<SpriteEntity>
+	audioManager = AudioManager.forApplication(context)
+	if(audioManager != null) {
+		clip = audioManager.getClipForResource("pop")
+		stream = audioManager.getStreamForResource("bgsound")
+		if(stream != null) {
+			stream.play()
+			stream.setLooping(true)
+		}
+	}
+	addEntity(new BackgroundEntity())
+	addEntity(crab = new CrabEntity())
+	collidableEntities += crab
+	addEntity(new ReloadButtonEntity())
+	addEntity(new FireButtonEntity())
+	addEntity(new QuitButtonEntity())
+}
+
+func tick(gameTime as TimeValue, delta as double) override
+{
+	base.tick(gameTime, delta)
+	var time = Math.round(gameTime.getSeconds())
+	if(time%10 == 0 && lockSpawn == false) {
+		lockSpawn = true
+		spawnBirds()
+	}
+	if(time%10 == 1) {
+		lockSpawn = false
+	}
+	checkCollision()
+}
+
+func checkCollision()
+{
+	foreach(entity as BirdEntity in collidableEntities) {
+		if(GameUtil.isCollide(crab, entity)) {
+			pushScene(new GameOverScene())
+		}
+		foreach(bullet as BulletEntity in collidableEntities) {
+			if(GameUtil.isCollide(entity, bullet)) {
+				if(clip != null) {
+					clip.play()
+				}
+				removeEntityFromScene(bullet)
+				addEntity(DeadBirdEntity.create(entity.getX(), entity.getY()))
+				removeEntityFromScene(entity)
+			}
+		}
+	}
+}
+
+func spawnBirds()
+{
+	var random = new Random()
+	var num = random.nextInt(MAX_SPAWN_NUM_LEVEL1)
+	if(score >= 50) {
+		num = random.nextInt(6, MAX_SPAWN_NUM_LEVEL2)
+	}
+	else if(score >= 100) {
+		num = random.nextInt(11, MAX_SPAWN_NUM_LEVEL3)
+	}
+	for(var i=0; i<=num; i++) {
+		var be = new BirdEntity()
+		addEntity(be)
+		collidableEntities += be
+	}
+}
+
+func removeEntityFromScene(entity as SpriteEntity)
+{
+	removeEntity(entity)
+	Vector.removeValue(collidableEntities, entity)
+}
+
+func fireBubble()
+{
+	if(clip != null) {
+		clip.play()
+	}
+	var be = BulletEntity.create(crab.getX(), crab.getY(), "right")
+	addEntity(be)
+	collidableEntities += be
+}
+
+func onKeyEvent(event as KeyEvent) override
+{
+	PRINT("** GameScene onKeyEvent")
+	PRINT(event.asString())
+}
+
+func getCrabEntity() as CrabEntity
+{
+	return(crab)
+}
+
+func cleanup override
+{
+	if(stream != null) {
+		stream.stop()
+	}
+	Vector.clear(collidableEntities)
+	removeAllEntities()
+}

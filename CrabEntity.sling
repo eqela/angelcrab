@@ -1,0 +1,78 @@
+
+/*
+ * This file is part of Angel Crab
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is SpriteEntity is PointerListener imports motion imports cape:
+
+var movex as double
+var movey as double
+var speed = 10
+var center as double
+var pointerEvent as PointerEvent
+var isPressed = false
+var sceneWidth as double
+var sceneHeight as double
+var crab as TextureSprite
+
+func createSprite override as Sprite
+{
+	sceneWidth = layer.getReferenceWidth()
+	sceneHeight = layer.getReferenceHeight()
+	var txt = scene.createTextureForImageResource("crab_normal")
+	crab = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * sceneHeight)
+	center = crab.getWidth() * 0.5
+	movex = layer.getReferenceWidth()*0.5
+	movey = sceneHeight*0.5
+	crab.move(movex, movey)
+	return(crab)
+}
+
+func tick(gameTime as TimeValue, delta as double) override
+{
+	base.tick(gameTime, delta)
+	if(pointerEvent != null && isPressed) {
+		movex -= (crab.getX() - pointerEvent.getX() + center) / speed;
+		movey -= (crab.getY() - pointerEvent.getY() + center) / speed;
+		sprite.move(movex, movey)
+	}
+}
+
+func onPointerEvent(event as PointerEvent) as bool
+{
+	var v = false
+	if(event.action == PointerEvent.UP) {
+		isPressed = false
+	}
+	else if(event.action == PointerEvent.DOWN) {
+		if(event.isInside(0.0, 0.0, sceneWidth, sceneHeight*0.85)) {
+			isPressed = true
+		}
+	}
+	else if(event.action == PointerEvent.CANCEL) {
+		isPressed = false
+	}
+	if(pointerEvent == null) {
+		pointerEvent = event
+	}
+	return(v)
+}

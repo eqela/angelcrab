@@ -1,0 +1,50 @@
+
+/*
+ * This file is part of Angel Crab
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is SpriteEntity imports motion imports cape:
+
+var movex as double
+var movey as double
+var speed = 250;
+var crab as CrabEntity
+
+func createSprite override as Sprite
+{
+	var txt = scene.createTextureForImageResource("angry_bird")
+	var bird = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * layer.getReferenceHeight())
+	movex = new Random().nextDouble()
+	movey = new Random().nextDouble()
+	bird.move(movex, movey)
+	var gs = scene as GameScene
+	crab = gs.getCrabEntity()
+	return(bird)
+}
+
+func tick(gameTime as TimeValue, delta as double) override
+{
+	base.tick(gameTime, delta)
+	movex -= (sprite.getX() - crab.getX()) / speed
+	movey -= (sprite.getY() - crab.getY()) / speed
+	sprite.move(movex, movey)
+}

@@ -1,0 +1,16 @@
+title = "Angel Crab"
+vendorId = "org.jkop"
+depends = [
+	"cape",
+	"capex",
+	"cave",
+	"motion"
+]
+resources = [
+	"images",
+	"audio"
+]
+prefilters += "modmotion.MotionFilter"
+compilerOptions = {
+	"html5.readableCode" : "true"
+}
