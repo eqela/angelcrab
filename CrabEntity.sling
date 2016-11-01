@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class is SpriteEntity is PointerListener imports motion imports cape:
+class is SpriteEntity is PointerListener imports motion imports cape imports cave:
 
 var movex as double
 var movey as double
@@ -30,30 +30,56 @@ var speed = 10
 var center as double
 var pointerEvent as PointerEvent
 var isPressed = false
+var switchSide = false
 var sceneWidth as double
 var sceneHeight as double
 var crab as TextureSprite
+var imagesRight as ImageSheet
+var imagesLeft as ImageSheet
 
 func createSprite override as Sprite
 {
 	sceneWidth = layer.getReferenceWidth()
 	sceneHeight = layer.getReferenceHeight()
-	var txt = scene.createTextureForImageResource("crab_normal")
-	crab = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * sceneHeight)
+	var img = scene.createImageFromResource("tile_crab_right")
+	var texture = scene.createTextureForImage(img)
+	imagesRight = new ImageSheet()
+	imagesRight.setSheet(img)
+	imagesRight.setRows(1)
+	imagesRight.setCols(5)
+	imagesRight.setMaxImages(5)
+	imagesLeft = new ImageSheet()
+	imagesLeft.setSheet(scene.createImageFromResource("tile_crab_left"))
+	imagesLeft.setRows(1)
+	imagesLeft.setCols(5)
+	imagesLeft.setMaxImages(5)
+	setImageSheet(imagesRight.toImages())
+	var csize = 0.1 * sceneHeight
+	crab = SpriteUtil.addTextureSpriteForSize(scene, layer, texture, csize, csize)
 	center = crab.getWidth() * 0.5
 	movex = layer.getReferenceWidth()*0.5
 	movey = sceneHeight*0.5
-	crab.move(movex, movey)
+	crab.move(movex-center, movey)
 	return(crab)
 }
 
 func tick(gameTime as TimeValue, delta as double) override
 {
 	base.tick(gameTime, delta)
+	this.nextFrame()
 	if(pointerEvent != null && isPressed) {
 		movex -= (crab.getX() - pointerEvent.getX() + center) / speed;
 		movey -= (crab.getY() - pointerEvent.getY() + center) / speed;
-		sprite.move(movex, movey)
+		if(movex > 0.5 && switchSide == false) {
+			switchSide = true
+		}
+		if(switchSide) {
+			onCrossedRight(true)
+		}
+		else {
+			onCrossedRight(false)
+		}
+		crab.move(movex, movey)
 	}
 }
 
@@ -62,17 +88,31 @@ func onPointerEvent(event as PointerEvent) as bool
 	var v = false
 	if(event.action == PointerEvent.UP) {
 		isPressed = false
+		v = false
 	}
-	else if(event.action == PointerEvent.DOWN) {
-		if(event.isInside(0.0, 0.0, sceneWidth, sceneHeight*0.85)) {
+	else if(event.action == PointerEvent.DOWN || event.action == PointerEvent.MOVE) {
+		if(event.isInside(0.0, 0.0, sceneWidth, sceneHeight*0.80)) {
 			isPressed = true
+			v = true
 		}
 	}
 	else if(event.action == PointerEvent.CANCEL) {
 		isPressed = false
+			v = false
 	}
 	if(pointerEvent == null) {
 		pointerEvent = event
 	}
 	return(v)
+}
+
+func onCrossedRight(v as bool)
+{
+	switchSide = false
+	if(v) {
+		setImageSheet(imagesLeft.toImages())
+	}
+	else {
+		setImageSheet(imagesRight.toImages())
+	}
 }

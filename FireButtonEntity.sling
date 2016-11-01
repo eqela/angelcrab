@@ -22,18 +22,22 @@
  * SOFTWARE.
  */
 
-class is SpriteEntity is PointerListener imports motion imports cape:
+class is SpriteEntity is PointerListener imports motion imports cape imports cave:
 
 var gameScene as GameScene
 var movex as double
 var movey as double
 var pressed = false
 var btnSprite as TextureSprite
+var txtNormal as Texture
+var txtPress as Texture
 
 func createSprite override as Sprite
 {
-	var txt = scene.createTextureForImageResource("fire_button_normal")
-	btnSprite = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.21 * layer.getReferenceHeight())
+	txtNormal = scene.createTextureForImageResource("fire_button_normal")
+	var img = scene.createImageFromResource("fire_button_press")
+	txtPress = scene.createTextureForImage(img)
+	btnSprite = SpriteUtil.addTextureSpriteForWidth(scene, layer, txtNormal, 0.21 * layer.getReferenceHeight())
 	movex = layer.getReferenceWidth() - (btnSprite.getWidth()*1.2)
 	movey = layer.getReferenceHeight() - btnSprite.getHeight()
 	btnSprite.move(movex, movey)
@@ -43,12 +47,15 @@ func createSprite override as Sprite
 
 func onPointerEvent(event as PointerEvent) as bool
 {
-	if(event.action == PointerEvent.DOWN) {
+	if(event.action == PointerEvent.DOWN && event.isConsumed == false) {
 		if(event.isInside(btnSprite.getX(), btnSprite.getY(), btnSprite.getWidth(), btnSprite.getHeight())) {
 			pressed = true
 			onPressedChanged()
-			return(true)
 		}
+	}
+	else if(event.action == PointerEvent.UP) {
+		pressed = false
+		onPressedChanged()
 	}
 	return(false)
 }
@@ -56,10 +63,10 @@ func onPointerEvent(event as PointerEvent) as bool
 func onPressedChanged
 {
 	if(pressed) {
+		btnSprite.setTexture(txtPress)
 		gameScene.fireBubble()
 	}
 	else {
-		var txt = scene.createTextureForImageResource("fire_button_normal")
-		btnSprite.setTexture(txt)
+		btnSprite.setTexture(txtNormal)
 	}
 }

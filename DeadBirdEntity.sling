@@ -27,11 +27,12 @@ class is SpriteEntity imports motion imports cape:
 var movex private as double
 var movey private as double
 var center private as double
-var speed private = 0.002
+var speed private = 0.006
 var gameScene as GameScene
 var sceneWidth as double
+var bird as TextureSprite
 
-func create(startx as double, starty as double) static as DeadBirdEntity
+func create(startx as double, starty as double) static as this
 {
 	var v = new this()
 	v.movex = startx
@@ -43,7 +44,7 @@ func createSprite override as Sprite
 {
 	sceneWidth = layer.getReferenceWidth()
 	var txt = scene.createTextureForImageResource("dead_bird")
-	var bird = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * layer.getReferenceHeight())
+	bird = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * layer.getReferenceHeight())
 	center = bird.getWidth() * 0.5
 	bird.move(movex, movey)
 	gameScene = scene as GameScene
@@ -53,9 +54,9 @@ func createSprite override as Sprite
 func tick(gameTime as TimeValue, delta as double) override
 {
 	base.tick(gameTime, delta)
-	sprite.move(movex, movey)
 	movey -= speed
-	if(movey + sprite.getWidth() < 0.0 || movex > sceneWidth) {
+	bird.move(movex, movey)
+	if(movey + bird.getWidth() < 0.0 || movex > sceneWidth) {
 		if(gameScene != null) {
 			gameScene.removeEntity(this)
 		}

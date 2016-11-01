@@ -37,7 +37,7 @@ func create(startx as double, starty as double, direction as string) static as B
 	v.movex = startx
 	v.movey = starty
 	if(direction == "left") {
-		v.speed = -0.01
+		v.speed = -0.013
 	}
 	else {
 		v.speed = 0.01

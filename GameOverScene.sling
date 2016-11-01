@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class is SpriteSceneWithEntities is PointerListener imports cape imports cave imports motion:
+class is SpriteSceneWithEntities imports cape imports cave imports motion:
 
 func initialize override
 {
@@ -30,12 +30,12 @@ func initialize override
 	addTextureSpriteForSize(createTextureForImageResource("gameover_background"), getReferenceWidth(), getReferenceHeight())
 }
 
-func onPointerEvent(event as PointerEvent) as bool
+func onPointerEvent(event as PointerEvent) override
 {
 	if(event.isConsumed == false) {
 		if(event.action == PointerEvent.DOWN) {
 			popScene()
+			pushScene(new GameScene())
 		}
 	}
-	return(false)
 }

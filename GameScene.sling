@@ -31,9 +31,9 @@ var fireButton as Sprite
 var stream as AudioStream
 var MAX_SPAWN_NUM_LEVEL1 final = 5
 var MAX_SPAWN_NUM_LEVEL2 final = 10
-var MAX_SPAWN_NUM_LEVEL3 final = 15
+var MAX_SPAWN_NUM_LEVEL3 final = 30
 var lockSpawn = false
-var score = 0
+var score = 100
 var collidableEntities as vector<SpriteEntity>
 
 func initialize override
@@ -75,7 +75,9 @@ func checkCollision()
 {
 	foreach(entity as BirdEntity in collidableEntities) {
 		if(GameUtil.isCollide(crab, entity)) {
+			popScene()
 			pushScene(new GameOverScene())
+			return
 		}
 		foreach(bullet as BulletEntity in collidableEntities) {
 			if(GameUtil.isCollide(entity, bullet)) {
@@ -85,6 +87,7 @@ func checkCollision()
 				removeEntityFromScene(bullet)
 				addEntity(DeadBirdEntity.create(entity.getX(), entity.getY()))
 				removeEntityFromScene(entity)
+				return
 			}
 		}
 	}
@@ -100,6 +103,7 @@ func spawnBirds()
 	else if(score >= 100) {
 		num = random.nextInt(11, MAX_SPAWN_NUM_LEVEL3)
 	}
+	PRINT(num)
 	for(var i=0; i<=num; i++) {
 		var be = new BirdEntity()
 		addEntity(be)
@@ -118,7 +122,13 @@ func fireBubble()
 	if(clip != null) {
 		clip.play()
 	}
-	var be = BulletEntity.create(crab.getX(), crab.getY(), "right")
+	var be as BulletEntity
+	if(crab.getX() > 0.5) {
+		be = BulletEntity.create(crab.getX(), crab.getY(), "left")
+	}
+	else {
+		be = BulletEntity.create(crab.getX(), crab.getY(), "right")
+	}
 	addEntity(be)
 	collidableEntities += be
 }
