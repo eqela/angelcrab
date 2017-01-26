@@ -22,20 +22,24 @@
  * SOFTWARE.
  */
 
-class is SpriteEntity imports motion imports cape imports cave:
+class is SpriteSheetEntity imports motion imports cape imports cave:
 
 var movex as double
 var movey as double
-var speed = 250;
-var crab as CrabEntity
+var speed = 250
+var crab as SpriteEntity
 var bird as TextureSprite
-var switchSide = false
 var imagesRight as ImageSheet
 var imagesLeft as ImageSheet
+var curSide private as string
 
 func createSprite override as Sprite
 {
+	var gs = scene as GameScene
+	crab = gs.getCrabEntity() as SpriteEntity
 	var img = scene.createImageFromResource("tile_bird_right")
+	movex = new Random().nextDouble()
+	movey = new Random().nextDouble()
 	var texture = scene.createTextureForImage(img)
 	imagesRight = new ImageSheet()
 	imagesRight.setSheet(img)
@@ -47,14 +51,18 @@ func createSprite override as Sprite
 	imagesLeft.setRows(1)
 	imagesLeft.setCols(5)
 	imagesLeft.setMaxImages(5)
-	setImageSheet(imagesRight.toImages())
+	if(movex > crab.getX()) {
+		curSide = "right"
+		switchSide(curSide)
+	}
+	else {
+		curSide = "left"
+		switchSide(curSide)
+	}
+	setFramesPerSecond(10)
 	var csize = 0.1 * layer.getReferenceHeight()
 	bird = SpriteUtil.addTextureSpriteForSize(scene, layer, texture, csize, csize)
-	movex = new Random().nextDouble()
-	movey = new Random().nextDouble()
 	bird.move(movex, movey)
-	var gs = scene as GameScene
-	crab = gs.getCrabEntity()
 	return(bird)
 }
 
@@ -63,25 +71,18 @@ func tick(gameTime as TimeValue, delta as double) override
 	base.tick(gameTime, delta)
 	movex -= (bird.getX() - crab.getX()) / speed
 	movey -= (bird.getY() - crab.getY()) / speed
-	if(movex > crab.getX() && switchSide == false) {
-		switchSide = true
-	}
-	if(movex > crab.getX() && switchSide) {
-		onCrossedRight(true)
-	}
-	else {
-		onCrossedRight(false)
-	}
+	switchSide(curSide)
 	bird.move(movex, movey)
 }
 
-func onCrossedRight(v as bool)
+func switchSide(v as string)
 {
-	switchSide = false
-	if(v) {
+	if(movex > crab.getX() && v == "right") {
 		setImageSheet(imagesLeft.toImages())
+		curSide = "left"
 	}
-	else {
+	else if(movex < crab.getX() && v == "left") {
 		setImageSheet(imagesRight.toImages())
+		curSide = "right"
 	}
 }

@@ -22,12 +22,11 @@
  * SOFTWARE.
  */
 
-class is SpriteEntity is PointerListener imports motion imports cape:
+class is SpriteEntity is PointerListener imports motion imports cave:
 
 var gameScene as GameScene
 var movex as double
 var movey as double
-var pressed = false
 var btnSprite as TextureSprite
 
 func createSprite override as Sprite

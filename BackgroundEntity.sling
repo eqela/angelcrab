@@ -25,7 +25,7 @@
 class is SpriteEntity imports motion imports cape:
 
 var movex as double
-var _sprite as Sprite
+var ssprite as Sprite
 var width as double
 
 func createSprite override as Sprite
@@ -33,21 +33,20 @@ func createSprite override as Sprite
 	var txt = scene.createTextureForImageResource("game_scene_background")
 	width = layer.getReferenceWidth()
 	var bg = SpriteUtil.addTextureSpriteForSize(scene, layer, txt, width, layer.getReferenceHeight())
-	_sprite = SpriteUtil.addTextureSpriteForSize(scene, layer, txt, width, layer.getReferenceHeight())
+	ssprite = SpriteUtil.addTextureSpriteForSize(scene, layer, txt, width, layer.getReferenceHeight())
 	movex = 0.0
 	bg.move(movex, 0.0)
-	_sprite.move(width, 0.0)
+	ssprite.move(width, 0.0)
 	return(bg)
 }
 
 func tick(gameTime as TimeValue, delta as double) override
 {
 	base.tick(gameTime, delta)
-	var _x = sprite.getX() - delta / 5
-	var _width = layer.getReferenceWidth()
-	if(_x <= -width) {
-		_x = 0
+	var sx = sprite.getX() - delta / 5
+	if(sx <= -width) {
+		sx = 0
 	}
-	sprite.move(_x, 0.0)
-	_sprite.move(width + _x, 0.0)
+	sprite.move(sx, 0.0)
+	ssprite.move(width + sx, 0.0)
 }

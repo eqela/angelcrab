@@ -24,14 +24,13 @@
 
 class is SpriteSceneWithEntities imports cape imports cave imports motion:
 
+var maxSpawnNumLevel1 final = 5
+var maxSpawnNumLevel2 final = 10
+var maxSpawnNumLevel3 final = 30
 var audioManager as AudioManager
 var clip as AudioClip
 var crab as CrabEntity
-var fireButton as Sprite
 var stream as AudioStream
-var MAX_SPAWN_NUM_LEVEL1 final = 5
-var MAX_SPAWN_NUM_LEVEL2 final = 10
-var MAX_SPAWN_NUM_LEVEL3 final = 30
 var lockSpawn = false
 var score = 100
 var collidableEntities as vector<SpriteEntity>
@@ -59,19 +58,21 @@ func initialize override
 
 func tick(gameTime as TimeValue, delta as double) override
 {
-	base.tick(gameTime, delta)
-	var time = Math.round(gameTime.getSeconds())
-	if(time%10 == 0 && lockSpawn == false) {
+	var misec = gameTime.getMicroSeconds()
+	var sec = (misec%10000000) / 1000000
+	if(sec == 9 && lockSpawn == false) {
 		lockSpawn = true
 		spawnBirds()
+		gameTime.setMicroSeconds(0)
 	}
-	if(time%10 == 1) {
+	if(sec == 1 && lockSpawn == true) {
 		lockSpawn = false
 	}
+	base.tick(gameTime, delta)
 	checkCollision()
 }
 
-func checkCollision()
+func checkCollision
 {
 	foreach(entity as BirdEntity in collidableEntities) {
 		if(GameUtil.isCollide(crab, entity)) {
@@ -93,17 +94,16 @@ func checkCollision()
 	}
 }
 
-func spawnBirds()
+func spawnBirds
 {
 	var random = new Random()
-	var num = random.nextInt(MAX_SPAWN_NUM_LEVEL1)
+	var num = random.nextInt(maxSpawnNumLevel1)
 	if(score >= 50) {
-		num = random.nextInt(6, MAX_SPAWN_NUM_LEVEL2)
+		num = random.nextInt(6, maxSpawnNumLevel2)
 	}
 	else if(score >= 100) {
-		num = random.nextInt(11, MAX_SPAWN_NUM_LEVEL3)
+		num = random.nextInt(11, maxSpawnNumLevel3)
 	}
-	PRINT(num)
 	for(var i=0; i<=num; i++) {
 		var be = new BirdEntity()
 		addEntity(be)
@@ -117,7 +117,7 @@ func removeEntityFromScene(entity as SpriteEntity)
 	Vector.removeValue(collidableEntities, entity)
 }
 
-func fireBubble()
+func fireBubble
 {
 	if(clip != null) {
 		clip.play()
@@ -136,10 +136,9 @@ func fireBubble()
 func onKeyEvent(event as KeyEvent) override
 {
 	PRINT("** GameScene onKeyEvent")
-	PRINT(event.asString())
 }
 
-func getCrabEntity() as CrabEntity
+func getCrabEntity as CrabEntity
 {
 	return(crab)
 }

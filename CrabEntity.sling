@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class is SpriteEntity is PointerListener imports motion imports cape imports cave:
+class is SpriteSheetEntity is PointerListener imports motion imports cape imports cave:
 
 var movex as double
 var movey as double
@@ -30,12 +30,12 @@ var speed = 10
 var center as double
 var pointerEvent as PointerEvent
 var isPressed = false
-var switchSide = false
 var sceneWidth as double
 var sceneHeight as double
 var crab as TextureSprite
 var imagesRight as ImageSheet
 var imagesLeft as ImageSheet
+var curSide private = "right"
 
 func createSprite override as Sprite
 {
@@ -54,6 +54,7 @@ func createSprite override as Sprite
 	imagesLeft.setCols(5)
 	imagesLeft.setMaxImages(5)
 	setImageSheet(imagesRight.toImages())
+	setFramesPerSecond(15)
 	var csize = 0.1 * sceneHeight
 	crab = SpriteUtil.addTextureSpriteForSize(scene, layer, texture, csize, csize)
 	center = crab.getWidth() * 0.5
@@ -66,19 +67,10 @@ func createSprite override as Sprite
 func tick(gameTime as TimeValue, delta as double) override
 {
 	base.tick(gameTime, delta)
-	this.nextFrame()
 	if(pointerEvent != null && isPressed) {
-		movex -= (crab.getX() - pointerEvent.getX() + center) / speed;
-		movey -= (crab.getY() - pointerEvent.getY() + center) / speed;
-		if(movex > 0.5 && switchSide == false) {
-			switchSide = true
-		}
-		if(switchSide) {
-			onCrossedRight(true)
-		}
-		else {
-			onCrossedRight(false)
-		}
+		movex -= (crab.getX() - pointerEvent.getX() + center) / speed
+		movey -= (crab.getY() - pointerEvent.getY() + center) / speed
+		switchSide(curSide)
 		crab.move(movex, movey)
 	}
 }
@@ -98,7 +90,7 @@ func onPointerEvent(event as PointerEvent) as bool
 	}
 	else if(event.action == PointerEvent.CANCEL) {
 		isPressed = false
-			v = false
+		v = false
 	}
 	if(pointerEvent == null) {
 		pointerEvent = event
@@ -106,13 +98,14 @@ func onPointerEvent(event as PointerEvent) as bool
 	return(v)
 }
 
-func onCrossedRight(v as bool)
+func switchSide(v as string)
 {
-	switchSide = false
-	if(v) {
+	if(movex > 0.5 && v == "right") {
 		setImageSheet(imagesLeft.toImages())
+		curSide = "left"
 	}
-	else {
+	else if(movex < 0.5 && v == "left") {
 		setImageSheet(imagesRight.toImages())
+		curSide = "right"
 	}
 }

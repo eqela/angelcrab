@@ -31,7 +31,7 @@ var speed private as double
 var gameScene as GameScene
 var sceneWidth as double
 
-func create(startx as double, starty as double, direction as string) static as BulletEntity
+func create(startx as double, starty as double, direction as string) static as this
 {
 	var v = new this()
 	v.movex = startx
