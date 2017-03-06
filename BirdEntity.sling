@@ -27,7 +27,7 @@ class is SpriteSheetEntity imports motion imports cape imports cave:
 var movex as double
 var movey as double
 var speed = 250
-var crab as SpriteEntity
+var crab as CrabEntity
 var bird as TextureSprite
 var imagesRight as ImageSheet
 var imagesLeft as ImageSheet
@@ -36,7 +36,7 @@ var curSide private as string
 func createSprite override as Sprite
 {
 	var gs = scene as GameScene
-	crab = gs.getCrabEntity() as SpriteEntity
+	crab = gs.getCrabEntity()
 	var img = scene.createImageFromResource("tile_bird_right")
 	movex = new Random().nextDouble()
 	movey = new Random().nextDouble()
@@ -51,13 +51,14 @@ func createSprite override as Sprite
 	imagesLeft.setRows(1)
 	imagesLeft.setCols(5)
 	imagesLeft.setMaxImages(5)
-	if(movex > crab.getX()) {
+	var cx = crab.getMoveX()
+	if(movex > cx) {
 		curSide = "right"
-		switchSide(curSide)
+		switchSide(curSide, cx)
 	}
 	else {
 		curSide = "left"
-		switchSide(curSide)
+		switchSide(curSide, cx)
 	}
 	setFramesPerSecond(10)
 	var csize = 0.1 * layer.getReferenceHeight()
@@ -69,19 +70,20 @@ func createSprite override as Sprite
 func tick(gameTime as TimeValue, delta as double) override
 {
 	base.tick(gameTime, delta)
-	movex -= (bird.getX() - crab.getX()) / speed
-	movey -= (bird.getY() - crab.getY()) / speed
-	switchSide(curSide)
+	var cx = crab.getMoveX()
+	movex -= (bird.getX() - cx) / speed
+	movey -= (bird.getY() - crab.getMoveY()) / speed
+	switchSide(curSide, cx)
 	bird.move(movex, movey)
 }
 
-func switchSide(v as string)
+func switchSide(v as string, cx as double)
 {
-	if(movex > crab.getX() && v == "right") {
+	if(movex > cx && v == "right") {
 		setImageSheet(imagesLeft.toImages())
 		curSide = "left"
 	}
-	else if(movex < crab.getX() && v == "left") {
+	else if(movex < cx && v == "left") {
 		setImageSheet(imagesRight.toImages())
 		curSide = "right"
 	}

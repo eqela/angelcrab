@@ -24,8 +24,8 @@
 
 class is SpriteSheetEntity is PointerListener imports motion imports cape imports cave:
 
-var movex as double
-var movey as double
+var movex private as double
+var movey private as double
 var speed = 10
 var center as double
 var pointerEvent as PointerEvent
@@ -108,4 +108,14 @@ func switchSide(v as string)
 		setImageSheet(imagesRight.toImages())
 		curSide = "right"
 	}
+}
+
+func getMoveX as double
+{
+	return(movex)
+}
+
+func getMoveY as double
+{
+	return(movey)
 }

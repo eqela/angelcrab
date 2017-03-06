@@ -27,7 +27,6 @@ class is SpriteSceneWithEntities imports cape imports cave imports motion #mainS
 func initialize override
 {
 	base.initialize()
-	lockToLandscapeOrientation()
 	addTextureSpriteForSize(createTextureForImageResource("angelcrab_background"), getReferenceWidth(), getReferenceHeight())
 }
 
